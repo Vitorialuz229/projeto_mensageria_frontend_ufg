@@ -1,13 +1,13 @@
-import './App.css'
+import './App.css';
 import Footer from './footer/footer';
 import Navigation from './navbar/navbar';
 import ProductList from './products/productsList';
 
 function App() {
   return (
-    <div className="pt-16"> 
+    <div className="flex flex-col min-h-screen pt-16">
       <Navigation />
-      <main>
+      <main className="flex-grow">
         <ProductList />
       </main>
       <Footer />
@@ -15,4 +15,4 @@ function App() {
   );
 }
 
-export default App
+export default App;
