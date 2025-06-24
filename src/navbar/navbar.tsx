@@ -11,6 +11,8 @@ import {
 import { useCart } from "../context/cartContext";
 import Cart from "../cart/cart";
 import { useState } from "react";
+import { ErrorBoundary } from "../exception/errorBoundary";
+import { motion, AnimatePresence } from "framer-motion";
 
 const navigation = [
   { name: "Home", href: "#", current: false },
@@ -69,9 +71,8 @@ export default function Navigation() {
               ))}
             </div>
           </div>
-
           {/* Carrinho */}
-          <div className="absolute inset-y-0 right-0 flex items-center pr-2">
+          <div className="absolute inset-y-0 right-0 flex items-center pr-2 max-h-[calc(100vh-5rem)] overflow-y-auto">
             <button
               type="button"
               onClick={() => setOpenCart(!openCart)}
@@ -87,21 +88,32 @@ export default function Navigation() {
               )}
             </button>
           </div>
-          {openCart && (
-            <div className="absolute top-16 right-4 z-50 w-80 bg-white border border-gray-200 rounded-md shadow-md p-4">
-              <div className="flex justify-between items-center mb-2">
-                <h3 className="text-lg font-semibold">Carrinho</h3>
-                <button
+          <AnimatePresence>
+            {openCart && (
+              <>
+                <motion.div
+                  className="fixed inset-0 bg-transparent z-40"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
                   onClick={() => setOpenCart(false)}
-                  className="text-gray-500 hover:text-gray-800 p-1 rounded-full"
-                  aria-label="Fechar carrinho"
+                />
+
+                <motion.div
+                  key="cart"
+                  className="fixed top-0 right-0 h-full w-96 z-50 bg-white shadow-lg rounded-l-lg"
+                  initial={{ x: "100%" }}
+                  animate={{ x: 0 }}
+                  exit={{ x: "100%" }}
+                  transition={{ type: "spring", stiffness: 300, damping: 30 }}
                 >
-                  <XMarkIcon className="h-5 w-5" />
-                </button>
-              </div>
-              <Cart />
-            </div>
-          )}
+                  <ErrorBoundary>
+                    <Cart onClose={() => setOpenCart(false)} />
+                  </ErrorBoundary>
+                </motion.div>
+              </>
+            )}
+          </AnimatePresence>
         </div>
       </div>
 

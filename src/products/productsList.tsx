@@ -3,47 +3,18 @@ import { Link } from "react-router-dom";
 import Modal from "../modal/modal";
 import ProductDetail from "./productDetail";
 import { ShoppingCart } from "lucide-react";
-
-interface Review {
-  id: string;
-  reviewerName: string;
-  reviewerEmail: string;
-  rating: number;
-  comment: string;
-  date: string;
-}
-
-interface Product {
-  id: string;
-  title: string;
-  description: string;
-  price: number;
-  category: string;
-  stock: number;
-  images?: string[];
-  tags?: string[];
-  reviews: Review[];
-}
+import { useProducts, type Product } from "../context/productsContext";
 
 export default function ProductList() {
-  const [products, setProducts] = useState<Product[]>([]);
+  const { products, fetchProducts } = useProducts();
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
 
   useEffect(() => {
-    const stored = localStorage.getItem("products");
-    if (stored) {
-      setProducts(JSON.parse(stored));
-    } else {
-      fetch("http://localhost:8081/product/")
-        .then((res) => res.json())
-        .then((data) => {
-          setProducts(data);
-          localStorage.setItem("products", JSON.stringify(data));
-        })
-        .catch((error) => console.error("Erro ao buscar produtos:", error));
+    if (products.length === 0) {
+      fetchProducts();
     }
-  }, []);
+  }, [products, fetchProducts]);
 
   function openModal(product: Product) {
     setSelectedProduct(product);
@@ -59,7 +30,7 @@ export default function ProductList() {
     <div className="bg-white">
       <div className="mx-auto max-w-2xl px-4 py-16 sm:px-6 lg:max-w-7xl lg:px-6">
         <h2 className="text-2xl font-bold tracking-tight text-gray-900">
-          Product List
+          Lista de Produtos
         </h2>
         <div className="mt-6 grid grid-cols-1 gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-4 xl:gap-x-8">
           {products.map((product) => (
@@ -74,7 +45,6 @@ export default function ProductList() {
 
               <div className="mt-4 flex justify-between items-center">
                 <div>
-                  {/* Link no título */}
                   <h3 className="text-sm text-gray-700">
                     <Link to={`/product/${product.id}`} state={{ product }}>
                       <span aria-hidden="true" className="absolute inset-0" />
@@ -89,6 +59,7 @@ export default function ProductList() {
                   ${product.price}
                 </p>
               </div>
+
               <button
                 onClick={() => openModal(product)}
                 className="absolute top-3 right-3 bg-white rounded-full p-2 shadow hover:bg-gray-100 transition"
@@ -102,7 +73,6 @@ export default function ProductList() {
         </div>
       </div>
 
-      {/* Modal */}
       <Modal isOpen={modalOpen} onClose={closeModal}>
         {selectedProduct && <ProductDetail product={selectedProduct} />}
       </Modal>
