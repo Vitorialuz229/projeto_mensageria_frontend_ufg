@@ -2,23 +2,29 @@ import {
   Disclosure,
   DisclosureButton,
   DisclosurePanel,
-} from '@headlessui/react';
+} from "@headlessui/react";
 import {
   Bars3Icon,
   XMarkIcon,
   ShoppingCartIcon,
-} from '@heroicons/react/24/outline';
+} from "@heroicons/react/24/outline";
+import { useCart } from "../context/cartContext";
+import Cart from "../cart/cart";
+import { useState } from "react";
 
 const navigation = [
-  { name: 'Home', href: '#', current: false },
-  { name: 'Produtos', href: '#', current: true },
+  { name: "Home", href: "#", current: false },
+  { name: "Produtos", href: "#", current: true },
 ];
 
 function classNames(...classes: (string | undefined | null | false)[]): string {
-  return classes.filter(Boolean).join(' ');
+  return classes.filter(Boolean).join(" ");
 }
 
 export default function Navigation() {
+  const { cartItems } = useCart();
+  const [openCart, setOpenCart] = useState(false);
+
   return (
     <Disclosure as="nav" className="bg-gray-800 fixed top-0 w-full z-50">
       <div className="mx-auto max-w-7xl px-2 sm:px-6 lg:px-8">
@@ -50,12 +56,12 @@ export default function Navigation() {
                 <a
                   key={item.name}
                   href={item.href}
-                  aria-current={item.current ? 'page' : undefined}
+                  aria-current={item.current ? "page" : undefined}
                   className={classNames(
                     item.current
-                      ? 'bg-gray-900 text-white'
-                      : 'text-gray-300 hover:bg-gray-700 hover:text-white',
-                    'rounded-md px-3 py-2 text-sm font-medium',
+                      ? "bg-gray-900 text-white"
+                      : "text-gray-300 hover:bg-gray-700 hover:text-white",
+                    "rounded-md px-3 py-2 text-sm font-medium"
                   )}
                 >
                   {item.name}
@@ -68,16 +74,34 @@ export default function Navigation() {
           <div className="absolute inset-y-0 right-0 flex items-center pr-2">
             <button
               type="button"
+              onClick={() => setOpenCart(!openCart)}
+              aria-label="Abrir carrinho"
               className="relative rounded-full p-1 text-gray-400 hover:text-white focus:outline-none focus:ring-2 focus:ring-white"
             >
               <span className="sr-only">Abrir carrinho</span>
               <ShoppingCartIcon className="h-6 w-6" aria-hidden="true" />
-              {/* Badge opcional */}
-              <span className="absolute -top-1 -right-1 inline-flex items-center justify-center px-1.5 py-0.5 text-xs font-bold leading-none text-white bg-red-600 rounded-full">
-                3
-              </span>
+              {cartItems.length > 0 && (
+                <span className="absolute -top-1 -right-1 inline-flex items-center justify-center px-1.5 py-0.5 text-xs font-bold leading-none text-white bg-red-600 rounded-full">
+                  {cartItems.reduce((acc, item) => acc + item.quantity, 0)}
+                </span>
+              )}
             </button>
           </div>
+          {openCart && (
+            <div className="absolute top-16 right-4 z-50 w-80 bg-white border border-gray-200 rounded-md shadow-md p-4">
+              <div className="flex justify-between items-center mb-2">
+                <h3 className="text-lg font-semibold">Carrinho</h3>
+                <button
+                  onClick={() => setOpenCart(false)}
+                  className="text-gray-500 hover:text-gray-800 p-1 rounded-full"
+                  aria-label="Fechar carrinho"
+                >
+                  <XMarkIcon className="h-5 w-5" />
+                </button>
+              </div>
+              <Cart />
+            </div>
+          )}
         </div>
       </div>
 
@@ -88,12 +112,12 @@ export default function Navigation() {
               key={item.name}
               as="a"
               href={item.href}
-              aria-current={item.current ? 'page' : undefined}
+              aria-current={item.current ? "page" : undefined}
               className={classNames(
                 item.current
-                  ? 'bg-gray-900 text-white'
-                  : 'text-gray-300 hover:bg-gray-700 hover:text-white',
-                'block rounded-md px-3 py-2 text-base font-medium',
+                  ? "bg-gray-900 text-white"
+                  : "text-gray-300 hover:bg-gray-700 hover:text-white",
+                "block rounded-md px-3 py-2 text-base font-medium"
               )}
             >
               {item.name}
